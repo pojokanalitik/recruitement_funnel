@@ -1,0 +1,184 @@
+table FactRequisition
+	lineageTag: 49952399-c4aa-4ac1-b7dc-76fb0f17a300
+
+	column ReqID
+		dataType: string
+		lineageTag: 65dc9f50-3f63-4f83-bd05-61e6211c70cf
+		summarizeBy: none
+		sourceColumn: ReqID
+
+	column JobID
+		dataType: string
+		isHidden
+		lineageTag: 7f1b103c-df15-42b0-aab4-77d26415479c
+		summarizeBy: none
+		sourceColumn: JobID
+
+	column RecruiterID
+		dataType: string
+		isHidden
+		lineageTag: 66d22876-72fd-4202-aa96-fb1a14a0f9e7
+		summarizeBy: none
+		sourceColumn: RecruiterID
+
+	column HiringManager
+		dataType: string
+		lineageTag: 230d977e-e225-4159-8720-771f8ca81811
+		summarizeBy: none
+		sourceColumn: HiringManager
+
+	column Openings
+		dataType: int64
+		formatString: #,0
+		lineageTag: 8cdb305f-dd2e-4609-ae36-aab0d1bc52d9
+		summarizeBy: none
+		sourceColumn: Openings
+
+	column Priority
+		dataType: string
+		lineageTag: fc891b4a-6a50-4f4d-b4d6-6a3a47469a4d
+		summarizeBy: none
+		sourceColumn: Priority
+
+	column ReqStatus
+		dataType: string
+		lineageTag: 616499c9-e25a-4605-aec6-f0245bd86d40
+		summarizeBy: none
+		sourceColumn: ReqStatus
+
+	column ApprovedDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 153e7c2a-26a2-40bd-bb12-87fff52ddf5d
+		summarizeBy: none
+		sourceColumn: ApprovedDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ApprovedDateKey
+		dataType: string
+		isHidden
+		lineageTag: a8948c89-3b61-4676-a6bb-7dbd2d1c9af0
+		summarizeBy: none
+		sourceColumn: ApprovedDateKey
+
+	column PostedDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: d4c28c2e-7c26-447f-8316-909e3bbbe9ea
+		summarizeBy: none
+		sourceColumn: PostedDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column PostedDateKey
+		dataType: string
+		isHidden
+		lineageTag: 482c9cbc-4343-4cc5-aeae-05cf96d0cc5f
+		summarizeBy: none
+		sourceColumn: PostedDateKey
+
+	column OfferAcceptedDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 88daf401-6b40-43ef-a54b-0c4e010c4759
+		summarizeBy: none
+		sourceColumn: OfferAcceptedDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column OfferAcceptedDateKey
+		dataType: string
+		isHidden
+		lineageTag: 519088f5-90fb-4d11-9c1c-aaf75e8766ed
+		summarizeBy: none
+		sourceColumn: OfferAcceptedDateKey
+
+	column StartDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dbf4a8b2-b0c4-412d-a020-3626f3fe39c0
+		summarizeBy: none
+		sourceColumn: StartDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ClosedDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: a7abe1c2-9e1a-4ef4-b341-e07a83f73f16
+		summarizeBy: none
+		sourceColumn: ClosedDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TargetDays
+		dataType: int64
+		formatString: #,0
+		lineageTag: 74e69a5d-0dd2-4a65-bd62-8881ad1b72db
+		summarizeBy: none
+		sourceColumn: TargetDays
+
+	column 'Days to Fill' = IF ( NOT ISBLANK ( FactRequisition[OfferAcceptedDate] ), DATEDIFF ( FactRequisition[PostedDate], FactRequisition[OfferAcceptedDate], DAY ) )
+		formatString: #,0
+		lineageTag: f3aed0b6-c7ac-4491-9ef8-8334e647cb8f
+		summarizeBy: none
+
+	column 'Req Age Days' =
+			IF (
+			    FactRequisition[ReqStatus] = "Open",
+			    DATEDIFF ( FactRequisition[PostedDate], TODAY (), DAY ),
+			    FactRequisition[Days to Fill]
+			)
+		formatString: #,0
+		lineageTag: 8f2c6ec8-cc41-49a3-ae3a-2b7fdfe01893
+		summarizeBy: none
+
+	column 'Aging Bucket' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( FactRequisition[Req Age Days] ), "Not Posted",
+			    FactRequisition[Req Age Days] <= 30, "0-30 Days",
+			    FactRequisition[Req Age Days] <= 60, "31-60 Days",
+			    FactRequisition[Req Age Days] <= 90, "61-90 Days",
+			    "90+ Days"
+			)
+		lineageTag: 64e50cad-6623-4a04-a5e7-e4236472f1a3
+		summarizeBy: none
+
+	column 'Aging Bucket Order' =
+			SWITCH (
+			    FactRequisition[Aging Bucket],
+			    "Not Posted", 0,
+			    "0-30 Days", 1,
+			    "31-60 Days", 2,
+			    "61-90 Days", 3,
+			    4
+			)
+		formatString: 0
+		lineageTag: 66836886-a260-4d0b-bb45-145c1a81682c
+		summarizeBy: none
+
+	column 'SLA Status' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( FactRequisition[Days to Fill] ), "Still Open",
+			    FactRequisition[Days to Fill] <= FactRequisition[TargetDays], "Within Target",
+			    "Over Target"
+			)
+		lineageTag: fc132d0d-113d-417d-b0cb-c97d0fef7928
+		summarizeBy: none
+
+	partition FactRequisition-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "FactRequisition.csv"),[Delimiter=",", Columns=16, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ReqID", type text}, {"JobID", type text}, {"RecruiterID", type text}, {"HiringManager", type text}, {"Openings", Int64.Type}, {"Priority", type text}, {"ReqStatus", type text}, {"ApprovedDate", type text}, {"ApprovedDateKey", type text}, {"PostedDate", type text}, {"PostedDateKey", type text}, {"OfferAcceptedDate", type text}, {"OfferAcceptedDateKey", type text}, {"StartDate", type text}, {"ClosedDate", type text}, {"TargetDays", Int64.Type}}),
+				    #"Parsed Dates" = Table.TransformColumns(#"Changed Type",{{"ApprovedDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}, {"PostedDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}, {"OfferAcceptedDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}, {"StartDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}, {"ClosedDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}})
+				in
+				    #"Parsed Dates"
+
+	annotation PBI_ResultType = Table
+

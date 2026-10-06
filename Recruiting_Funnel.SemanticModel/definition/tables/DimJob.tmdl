@@ -1,0 +1,58 @@
+table DimJob
+	lineageTag: 451abd81-f1d6-4ed6-97f5-e837d70820fe
+
+	column JobID
+		dataType: string
+		isHidden
+		lineageTag: 10a3d6b2-aa05-411a-b271-5945795e8229
+		summarizeBy: none
+		sourceColumn: JobID
+
+	column JobTitle
+		dataType: string
+		lineageTag: 4f426dcb-b394-4b36-bb2d-420f0f88080b
+		summarizeBy: none
+		sourceColumn: JobTitle
+
+	column Department
+		dataType: string
+		lineageTag: ae658f33-fe3b-490b-93f4-48b3a5aa3c81
+		summarizeBy: none
+		sourceColumn: Department
+
+	column JobFamily
+		dataType: string
+		lineageTag: b774eb52-48db-40af-b215-8370d269a9a5
+		summarizeBy: none
+		sourceColumn: JobFamily
+
+	column JobLevel
+		dataType: string
+		lineageTag: 58d5563d-ab2c-431e-a315-128862c33a4f
+		summarizeBy: none
+		sourceColumn: JobLevel
+
+	column Location
+		dataType: string
+		lineageTag: 5affb229-7631-4992-b0ce-583505c6af07
+		summarizeBy: none
+		sourceColumn: Location
+
+	column EmploymentType
+		dataType: string
+		lineageTag: 7e62aa0a-1df9-4d78-9c65-39382b0537e6
+		summarizeBy: none
+		sourceColumn: EmploymentType
+
+	partition DimJob-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "DimJob.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"JobID", type text}, {"JobTitle", type text}, {"Department", type text}, {"JobFamily", type text}, {"JobLevel", type text}, {"Location", type text}, {"EmploymentType", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

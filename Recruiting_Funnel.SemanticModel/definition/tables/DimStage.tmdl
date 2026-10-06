@@ -1,0 +1,49 @@
+table DimStage
+	lineageTag: 6b4cb242-4a23-4596-a217-beaddbc496cb
+
+	column StageID
+		dataType: string
+		isHidden
+		lineageTag: 92276658-1e27-41c0-8a6a-63ec24ede6a4
+		summarizeBy: none
+		sourceColumn: StageID
+
+	column StageName
+		dataType: string
+		lineageTag: ae97ba94-d0ed-482f-8f6d-05584ef8aa38
+		summarizeBy: none
+		sourceColumn: StageName
+		sortByColumn: StageOrder
+
+	column StageOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: 923a7369-94e3-4f91-9a61-dbe22e44158b
+		summarizeBy: none
+		sourceColumn: StageOrder
+
+	column StageGroup
+		dataType: string
+		lineageTag: 18f135d2-5f55-4203-b018-50c5a38fd547
+		summarizeBy: none
+		sourceColumn: StageGroup
+
+	column SLADays
+		dataType: int64
+		formatString: 0
+		lineageTag: 907a70c3-1012-4037-b64c-e4228c38fb29
+		summarizeBy: none
+		sourceColumn: SLADays
+
+	partition DimStage-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "DimStage.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"StageID", type text}, {"StageName", type text}, {"StageOrder", Int64.Type}, {"StageGroup", type text}, {"SLADays", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

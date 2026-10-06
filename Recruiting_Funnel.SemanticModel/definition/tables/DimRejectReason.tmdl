@@ -1,0 +1,40 @@
+table DimRejectReason
+	lineageTag: 57ee05cd-e009-42c7-bebf-f20686734721
+
+	column ReasonID
+		dataType: string
+		isHidden
+		lineageTag: 9be4bcfc-49b6-4a08-b2e6-cc3ababced20
+		summarizeBy: none
+		sourceColumn: ReasonID
+
+	column ReasonName
+		dataType: string
+		lineageTag: 830e07bc-1e39-4f10-92bd-4acefaecbd38
+		summarizeBy: none
+		sourceColumn: ReasonName
+
+	column ReasonCategory
+		dataType: string
+		lineageTag: 5790f82e-c1d3-4cff-aa3a-f4d46b0a18e8
+		summarizeBy: none
+		sourceColumn: ReasonCategory
+
+	column ResponsibleParty
+		dataType: string
+		lineageTag: 6bf46c69-7d2c-4f82-aeea-cbe226e87555
+		summarizeBy: none
+		sourceColumn: ResponsibleParty
+
+	partition DimRejectReason-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "DimRejectReason.csv"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ReasonID", type text}, {"ReasonName", type text}, {"ReasonCategory", type text}, {"ResponsibleParty", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

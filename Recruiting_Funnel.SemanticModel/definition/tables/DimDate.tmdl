@@ -1,0 +1,89 @@
+table DimDate
+	lineageTag: 6513270e-269e-4d37-b2a7-4de452e6b438
+	dataCategory: Time
+
+	column DateKey
+		dataType: string
+		isHidden
+		lineageTag: d23f0824-128b-4f33-8c5c-7fd0a6a3a450
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column FullDate
+		dataType: dateTime
+		isKey
+		formatString: yyyy-mm-dd
+		lineageTag: 9531985d-5d9d-49f8-9818-e811892f902b
+		summarizeBy: none
+		sourceColumn: FullDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 36f675cc-81e7-4ef5-a8e2-5d940ed90475
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Quarter
+		dataType: string
+		lineageTag: 6b0d549b-6f03-475a-9600-a35a099950d8
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	column Month
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8d116ece-1738-47d9-bd9c-172411e20b8f
+		summarizeBy: none
+		sourceColumn: Month
+
+	column MonthName
+		dataType: string
+		lineageTag: 90c192cf-d3ac-44af-8f21-ddb66cad4a26
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: Month
+
+	column YearMonth
+		dataType: string
+		lineageTag: a170b338-3926-4059-b28c-105d1fb17c23
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+	column Week
+		dataType: int64
+		formatString: 0
+		lineageTag: 0fd630f1-f29d-4da9-953f-48f1a09f76b5
+		summarizeBy: none
+		sourceColumn: Week
+
+	column DayName
+		dataType: string
+		lineageTag: 0cb1e29c-658c-4a14-95e6-0af593bd04cf
+		summarizeBy: none
+		sourceColumn: DayName
+
+	column IsWorkday
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8e81973e-0bec-47b0-b898-d190f9ebdacc
+		summarizeBy: none
+		sourceColumn: IsWorkday
+
+	partition DimDate-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "DimDate.csv"),[Delimiter=",", Columns=10, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"DateKey", type text}, {"FullDate", type text}, {"Year", Int64.Type}, {"Quarter", type text}, {"Month", Int64.Type}, {"MonthName", type text}, {"YearMonth", type text}, {"Week", Int64.Type}, {"DayName", type text}, {"IsWorkday", Int64.Type}}),
+				    #"Parsed Dates" = Table.TransformColumns(#"Changed Type",{{"FullDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}})
+				in
+				    #"Parsed Dates"
+
+	annotation PBI_ResultType = Table
+

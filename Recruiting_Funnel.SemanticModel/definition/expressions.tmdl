@@ -1,0 +1,5 @@
+expression DataFolderPath = "yourfolder\Recruiting_Funnel_PBIP\DataFiles\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: b01903e9-dfcd-4c1b-9b12-590a4f872dc7
+
+	annotation PBI_ResultType = Text
+

@@ -1,0 +1,82 @@
+table FactStageEvent
+	lineageTag: 7a86f7a2-43c7-4b9a-bd87-a86557b6fb7e
+
+	column EventID
+		dataType: string
+		isHidden
+		lineageTag: 842e7fc2-2954-4a6e-b12a-a1f6d42fddbb
+		summarizeBy: none
+		sourceColumn: EventID
+
+	column ApplicationID
+		dataType: string
+		isHidden
+		lineageTag: f3b7a50d-f373-4a53-b488-f87605e999f3
+		summarizeBy: none
+		sourceColumn: ApplicationID
+
+	column ReqID
+		dataType: string
+		isHidden
+		lineageTag: b0a844e5-2587-4e6b-9c9b-cf35873be078
+		summarizeBy: none
+		sourceColumn: ReqID
+
+	column StageID
+		dataType: string
+		isHidden
+		lineageTag: c215a82a-06ec-41ad-aa05-75438b0d590b
+		summarizeBy: none
+		sourceColumn: StageID
+
+	column EnterDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: a49636a2-fa7f-4eab-8c4f-9b0687322e25
+		summarizeBy: none
+		sourceColumn: EnterDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EnterDateKey
+		dataType: string
+		isHidden
+		lineageTag: d86f40f6-b239-43c7-974c-77a2dd02de92
+		summarizeBy: none
+		sourceColumn: EnterDateKey
+
+	column ExitDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: e883a1d4-5de0-4997-84b5-a81842d87208
+		summarizeBy: none
+		sourceColumn: ExitDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DaysInStage
+		dataType: int64
+		formatString: #,0
+		lineageTag: 3908f227-c59d-4916-9b0e-e76f2ac34446
+		summarizeBy: sum
+		sourceColumn: DaysInStage
+
+	column Outcome
+		dataType: string
+		lineageTag: 80b0c08b-c770-4420-8aa4-248c8857f9a4
+		summarizeBy: none
+		sourceColumn: Outcome
+
+	partition FactStageEvent-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "FactStageEvent.csv"),[Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"EventID", type text}, {"ApplicationID", type text}, {"ReqID", type text}, {"StageID", type text}, {"EnterDate", type text}, {"EnterDateKey", type text}, {"ExitDate", type text}, {"DaysInStage", Int64.Type}, {"Outcome", type text}}),
+				    #"Parsed Dates" = Table.TransformColumns(#"Changed Type",{{"EnterDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}, {"ExitDate", each if _ = null or _ = "" then null else Date.FromText ( _, [Format="yyyy-MM-dd", Culture="en-US"] ), type nullable date}})
+				in
+				    #"Parsed Dates"
+
+	annotation PBI_ResultType = Table
+

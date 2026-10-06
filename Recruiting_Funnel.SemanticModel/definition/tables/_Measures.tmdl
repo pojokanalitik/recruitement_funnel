@@ -1,0 +1,379 @@
+table _Measures
+	lineageTag: da845a33-4fb9-43ce-baef-078671a8441c
+
+	measure 'Total Requisitions' = COUNTROWS ( FactRequisition )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: 9974d75b-3338-44fe-a179-0134676b1b69
+
+	measure 'Open Requisitions' = CALCULATE ( [Total Requisitions], FactRequisition[ReqStatus] = "Open" )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: 221c4e00-3f99-41ee-baf2-7f802dc5fd3d
+
+	measure 'Filled Requisitions' = CALCULATE ( [Total Requisitions], FactRequisition[ReqStatus] = "Filled" )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: baa1c6f1-404b-4eaf-962a-01dec28753f8
+
+	measure 'Cancelled Requisitions' = CALCULATE ( [Total Requisitions], FactRequisition[ReqStatus] = "Cancelled" )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: b35331ce-af2e-49dd-87e3-55b26210b784
+
+	measure 'Total Openings' = SUM ( FactRequisition[Openings] )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: 9fb932d4-f039-4722-96ff-82e389e3995a
+
+	measure 'Total Applications' = COUNTROWS ( FactApplication )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: b8e3c71f-6bf0-4d62-b310-57ca7d411fab
+
+	measure 'Total Hires' = CALCULATE ( COUNTROWS ( FactApplication ), FactApplication[IsHired] = 1 )
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: cae8c077-3779-45b3-96a1-da2c9cfbba43
+
+	measure 'Applications by Applied Date' =
+			CALCULATE (
+			    [Total Applications],
+			    USERELATIONSHIP ( FactApplication[AppliedDateKey], DimDate[DateKey] )
+			)
+		formatString: #,0
+		displayFolder: 01 Volume
+		lineageTag: d283eb3a-5fbd-438e-89cf-158de6e96d45
+
+	measure 'Avg Time to Fill' =
+			VAR FilledReqs =
+			    FILTER (
+			        FactRequisition,
+			        NOT ISBLANK ( FactRequisition[OfferAcceptedDate] )
+			    )
+			RETURN
+			    AVERAGEX ( FilledReqs, FactRequisition[Days to Fill] )
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 366c5acd-aeaf-4905-9c8a-c0bb635b4c41
+
+	measure 'Median Time to Fill' =
+			VAR FilledReqs =
+			    FILTER (
+			        FactRequisition,
+			        NOT ISBLANK ( FactRequisition[OfferAcceptedDate] )
+			    )
+			RETURN
+			    MEDIANX ( FilledReqs, FactRequisition[Days to Fill] )
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 2dd301c8-a91a-4a5c-b623-c4dd26fb984f
+
+	measure 'P90 Time to Fill' =
+			VAR FilledReqs =
+			    FILTER (
+			        FactRequisition,
+			        NOT ISBLANK ( FactRequisition[OfferAcceptedDate] )
+			    )
+			RETURN
+			    PERCENTILEX.INC ( FilledReqs, FactRequisition[Days to Fill], 0.90 )
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 153d3a3f-56bc-49cb-9121-5785d9977338
+
+	measure 'Avg Approval Lag' =
+			AVERAGEX (
+			    FactRequisition,
+			    DATEDIFF ( FactRequisition[ApprovedDate], FactRequisition[PostedDate], DAY )
+			)
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: ad689cf8-8759-4153-b778-5728f2655b19
+
+	measure 'Avg Time to Start' =
+			AVERAGEX (
+			    FILTER ( FactRequisition, NOT ISBLANK ( FactRequisition[StartDate] ) ),
+			    DATEDIFF ( FactRequisition[PostedDate], FactRequisition[StartDate], DAY )
+			)
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 50fe3281-7812-4170-967a-34d0c643e653
+
+	measure 'Avg Target Days' = AVERAGE ( FactRequisition[TargetDays] )
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 8ed5f036-44f7-48cd-8aeb-34f967124890
+
+	measure 'Time to Fill vs Target' = [Avg Time to Fill] - [Avg Target Days]
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 5ccedc77-3429-479c-acda-4ccb01f35efe
+
+	measure 'Reqs Within SLA' = CALCULATE ( [Filled Requisitions], FactRequisition[SLA Status] = "Within Target" )
+		formatString: #,0
+		displayFolder: 02 Time to Fill
+		lineageTag: 14b062ae-88c8-4ad1-aee1-f220fd547512
+
+	measure '% Reqs Within SLA' = IF(ISBLANK(DIVIDE ( [Reqs Within SLA], [Filled Requisitions],0 )),0,DIVIDE ( [Reqs Within SLA], [Filled Requisitions],0 ))
+		formatString: 0.0%
+		displayFolder: 02 Time to Fill
+		lineageTag: 32b55d35-e676-46f1-84c6-9290764b5018
+
+	measure 'Avg Time to Fill PM' = CALCULATE ( [Avg Time to Fill], DATEADD ( DimDate[FullDate], -1, MONTH ) )
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: 0d2329d9-fa09-4a46-b673-89669b02a56d
+
+	measure 'Time to Fill MoM' = [Avg Time to Fill] - [Avg Time to Fill PM]
+		formatString: #,0.0
+		displayFolder: 02 Time to Fill
+		lineageTag: f3d2273a-3740-4227-a10f-4d0c5b86c0ef
+
+	measure 'Candidates Reaching Stage' = DISTINCTCOUNT ( FactStageEvent[ApplicationID] )
+		formatString: #,0
+		displayFolder: 03 Funnel
+		lineageTag: bf5cb443-292a-48f3-b713-b4c7ebb7344d
+
+	measure 'Candidates Advanced' =
+			CALCULATE (
+			    [Candidates Reaching Stage],
+			    FactStageEvent[Outcome] IN { "Advanced", "Hired" }
+			)
+		formatString: #,0
+		displayFolder: 03 Funnel
+		lineageTag: ecc2c55e-986d-4842-b114-3591cab5f7c4
+
+	measure 'Pass-Through Rate' = DIVIDE ( [Candidates Advanced], [Candidates Reaching Stage] )
+		formatString: 0.0%
+		displayFolder: 03 Funnel
+		lineageTag: 80d16aaf-f1a4-4fe5-ad78-dc4bfb9e8dda
+
+	measure 'Leakage Count' = [Candidates Reaching Stage] - [Candidates Advanced]
+		formatString: #,0
+		displayFolder: 03 Funnel
+		lineageTag: 1c1b5b32-097c-480c-ad0f-d6d9a90965f5
+
+	measure 'Leakage Rate' = DIVIDE ( [Leakage Count], [Candidates Reaching Stage] )
+		formatString: 0.0%
+		displayFolder: 03 Funnel
+		lineageTag: af11c1e7-7946-4a34-abd2-ed1c05f73dba
+
+	measure 'Conversion from Applied' =
+			VAR AppliedCount =
+			    CALCULATE (
+			        [Candidates Reaching Stage],
+			        ALL ( DimStage ),
+			        DimStage[StageOrder] = 1
+			    )
+			RETURN
+			    DIVIDE ( [Candidates Reaching Stage], AppliedCount )
+		formatString: 0.0%
+		displayFolder: 03 Funnel
+		lineageTag: efca6c3a-14c6-495e-ab45-1936d1d5c42f
+
+	measure 'Applied to Hire Rate' = DIVIDE ( [Total Hires], [Total Applications] )
+		formatString: 0.0%
+		displayFolder: 03 Funnel
+		lineageTag: 2495da17-1605-4583-a1cb-b7236ce8571b
+
+	measure 'Applications per Hire' = DIVIDE ( [Total Applications], [Total Hires] )
+		formatString: #,0.0
+		displayFolder: 03 Funnel
+		lineageTag: 618d3f43-0173-445f-9e0d-54254f4f81b0
+
+	measure 'Candidates Reaching Interview' =
+			CALCULATE (
+			    DISTINCTCOUNT ( FactApplication[ApplicationID] ),
+			    FactApplication[FurthestStageOrder] >= 4
+			)
+		formatString: #,0
+		displayFolder: 03 Funnel
+		lineageTag: 67c3b9fe-85fd-4dc4-a2c4-d84f5467115b
+
+	measure 'Interview Reach Rate' = DIVIDE ( [Candidates Reaching Interview], [Total Applications] )
+		formatString: 0.0%
+		displayFolder: 03 Funnel
+		lineageTag: f94cf6b0-c986-4a9f-a664-718333674334
+
+	measure 'Offer Acceptance Rate' =
+			VAR Extended =
+			    CALCULATE (
+			        [Candidates Reaching Stage],
+			        ALL ( DimStage ),
+			        DimStage[StageOrder] = 7
+			    )
+			VAR Accepted =
+			    CALCULATE (
+			        [Candidates Reaching Stage],
+			        ALL ( DimStage ),
+			        DimStage[StageOrder] = 8
+			    )
+			RETURN
+			    DIVIDE ( Accepted, Extended )
+		formatString: 0.0%
+		displayFolder: 03 Funnel
+		lineageTag: 7166a9f5-3620-4dbc-a3f3-760f0e2eb028
+
+	measure 'Worst Leak Stage' =
+			VAR StageLeak =
+			    ADDCOLUMNS (
+			        FILTER ( ALL ( DimStage ), DimStage[StageOrder] < 8 ),
+			        "@Leak", [Leakage Rate],
+			        "@Lost", [Leakage Count]
+			    )
+			VAR Ranked =
+			    TOPN ( 1, FILTER ( StageLeak, [@Lost] > 0 ), [@Lost], DESC )
+			RETURN
+			    CONCATENATEX ( Ranked, DimStage[StageName] )
+		displayFolder: 03 Funnel
+		lineageTag: d33bf820-6770-4a78-8ba3-fb8041f089dc
+
+	measure 'Worst Leak Stage Lost' =
+			VAR StageLeak =
+			    ADDCOLUMNS (
+			        FILTER ( ALL ( DimStage ), DimStage[StageOrder] < 8 ),
+			        "@Lost", [Leakage Count]
+			    )
+			VAR Ranked =
+			    TOPN ( 1, StageLeak, [@Lost], DESC )
+			RETURN
+			    MAXX ( Ranked, [@Lost] )
+		formatString: #,0
+		displayFolder: 03 Funnel
+		lineageTag: f0fc795a-5a93-41f6-a058-8857c3881083
+
+	measure 'Avg Days in Stage' = AVERAGE ( FactStageEvent[DaysInStage] )
+		formatString: #,0.0
+		displayFolder: 04 Stage Velocity
+		lineageTag: 0e4a1175-ec15-4269-b9e4-8824b1eb72c8
+
+	measure 'Total Stage Days' = SUM ( FactStageEvent[DaysInStage] )
+		formatString: #,0
+		displayFolder: 04 Stage Velocity
+		lineageTag: b7e6ace5-dd2a-4afe-bd11-e14f21846d9e
+
+	measure 'Stage SLA Days' = AVERAGE ( DimStage[SLADays] )
+		formatString: #,0.0
+		displayFolder: 04 Stage Velocity
+		lineageTag: 26833cca-bf49-4557-8768-beaf9983d819
+
+	measure 'Stage Days vs SLA' = [Avg Days in Stage] - [Stage SLA Days]
+		formatString: #,0.0
+		displayFolder: 04 Stage Velocity
+		lineageTag: 1fd68335-6886-4042-b0f4-04719ba8272c
+
+	measure 'Stage Share of Cycle Time' =
+			DIVIDE (
+			    [Total Stage Days],
+			    CALCULATE ( [Total Stage Days], ALL ( DimStage ) )
+			)
+		formatString: 0.0%
+		displayFolder: 04 Stage Velocity
+		lineageTag: 4bc4f0a0-24c7-4f48-9e64-176618b3205e
+
+	measure 'Withdrawn Candidates' = CALCULATE ( COUNTROWS ( FactApplication ), FactApplication[FinalStatus] = "Withdrew" )
+		formatString: #,0
+		displayFolder: 05 Dropout & Quality
+		lineageTag: 68ed8a23-2d7a-4d12-bdba-24d02c941da5
+
+	measure 'Withdrawal Rate' = DIVIDE ( [Withdrawn Candidates], [Total Applications] )
+		formatString: 0.0%
+		displayFolder: 05 Dropout & Quality
+		lineageTag: e163e7ce-3523-4b0d-ac94-09ff25403cfd
+
+	measure 'Company-Caused Losses' =
+			CALCULATE (
+			    COUNTROWS ( FactApplication ),
+			    DimRejectReason[ResponsibleParty] = "Company"
+			)
+		formatString: #,0
+		displayFolder: 05 Dropout & Quality
+		lineageTag: 7fc73719-c543-4396-91b0-f6188f9b7341
+
+	measure 'Company-Caused Loss Rate' = DIVIDE ( [Company-Caused Losses], [Total Applications] )
+		formatString: 0.0%
+		displayFolder: 05 Dropout & Quality
+		lineageTag: 41f1fc30-d89b-4cfa-bbe1-4460cc477944
+
+	measure 'Source Yield Rate' = DIVIDE ( [Total Hires], [Total Applications] )
+		formatString: 0.0%
+		displayFolder: 05 Dropout & Quality
+		lineageTag: 5c988a90-d285-4dcb-9b9d-1cca1e01b04f
+
+	measure 'Yield vs Benchmark' = [Source Yield Rate] - AVERAGE ( DimSource[BenchmarkYieldRate] )
+		formatString: 0.0%
+		displayFolder: 05 Dropout & Quality
+		lineageTag: 8050cbb8-1288-4d4e-ada6-af532f9a8bcb
+
+	measure 'Avg Req Age (Open)' = AVERAGEX ( FILTER ( FactRequisition, FactRequisition[ReqStatus] = "Open" ), FactRequisition[Req Age Days] )
+		formatString: #,0.0
+		displayFolder: 06 Pipeline Health
+		lineageTag: d5223ad8-95ef-4225-82da-a0b349a7a4bf
+
+	measure 'Reqs Aging 90+ Days' =
+			CALCULATE (
+			    [Total Requisitions],
+			    FILTER (
+			        FactRequisition,
+			        FactRequisition[ReqStatus] = "Open"
+			            && FactRequisition[Req Age Days] >= 90
+			    )
+			)
+		formatString: #,0
+		displayFolder: 06 Pipeline Health
+		lineageTag: 608162c3-3760-4399-9662-23050c349a2a
+
+	measure 'Active Candidates' = CALCULATE ( COUNTROWS ( FactApplication ), FactApplication[FinalStatus] = "In Process" )
+		formatString: #,0
+		displayFolder: 06 Pipeline Health
+		lineageTag: cff79c40-d286-46a7-9635-823a662b78f5
+
+	measure 'Pipeline Coverage Ratio' = DIVIDE ( [Active Candidates], [Open Requisitions] )
+		formatString: #,0.0
+		displayFolder: 06 Pipeline Health
+		lineageTag: d04de5aa-6a00-4d65-a2cc-f670663fbdfb
+
+	measure 'Color - Leakage' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Leakage Rate] ), "#94A3B8",
+			    [Leakage Rate] >= 0.50, "#E05252",
+			    [Leakage Rate] >= 0.35, "#F5A623",
+			    "#2DD4BF"
+			)
+		displayFolder: 07 Conditional Formatting
+		lineageTag: 2e64ca6e-17b8-4928-88cc-55935ef852e5
+
+	measure 'Color - Time to Fill' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Avg Time to Fill] ), "#94A3B8",
+			    [Time to Fill vs Target] > 15, "#E05252",
+			    [Time to Fill vs Target] > 0, "#F5A623",
+			    "#2DD4BF"
+			)
+		displayFolder: 07 Conditional Formatting
+		lineageTag: 5f7ca3c8-ec4c-4908-899f-a987e12b6479
+
+	measure 'Time to Fill Status' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Avg Time to Fill] ), "No Data",
+			    [Time to Fill vs Target] > 15, "Far Over Target",
+			    [Time to Fill vs Target] > 0, "Slightly Over",
+			    "Within Target"
+			)
+		displayFolder: 07 Conditional Formatting
+		lineageTag: c55490dd-6609-44fe-9b6d-9f3eb8beb5e2
+
+	column Placeholder
+		isHidden
+		formatString: 0
+		lineageTag: b84fbdd9-a742-4713-b9de-23c8a7827019
+		summarizeBy: sum
+		sourceColumn: [Placeholder]
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW ( "Placeholder", BLANK () )
+

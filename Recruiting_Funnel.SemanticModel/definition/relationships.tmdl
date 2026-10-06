@@ -1,0 +1,47 @@
+relationship rel-req-date
+	fromColumn: FactRequisition.PostedDateKey
+	toColumn: DimDate.DateKey
+
+relationship rel-req-job
+	fromColumn: FactRequisition.JobID
+	toColumn: DimJob.JobID
+
+relationship rel-req-rec
+	fromColumn: FactRequisition.RecruiterID
+	toColumn: DimRecruiter.RecruiterID
+
+relationship rel-app-req
+	fromColumn: FactApplication.ReqID
+	toColumn: FactRequisition.ReqID
+
+relationship rel-app-src
+	fromColumn: FactApplication.SourceID
+	toColumn: DimSource.SourceID
+
+relationship rel-app-reason
+	fromColumn: FactApplication.RejectReasonID
+	toColumn: DimRejectReason.ReasonID
+
+relationship rel-app-date
+	isActive: false
+	fromColumn: FactApplication.AppliedDateKey
+	toColumn: DimDate.DateKey
+
+relationship rel-app-furthest
+	isActive: false
+	fromColumn: FactApplication.FurthestStageID
+	toColumn: DimStage.StageID
+
+relationship rel-evt-app
+	fromColumn: FactStageEvent.ApplicationID
+	toColumn: FactApplication.ApplicationID
+
+relationship rel-evt-stage
+	fromColumn: FactStageEvent.StageID
+	toColumn: DimStage.StageID
+
+relationship rel-evt-date
+	isActive: false
+	fromColumn: FactStageEvent.EnterDateKey
+	toColumn: DimDate.DateKey
+

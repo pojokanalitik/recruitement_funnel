@@ -1,0 +1,47 @@
+table DimSource
+	lineageTag: 7f150524-34b9-45df-9e77-69b10f4205b4
+
+	column SourceID
+		dataType: string
+		isHidden
+		lineageTag: c6f87718-6d76-407e-881e-d162ae2eb154
+		summarizeBy: none
+		sourceColumn: SourceID
+
+	column SourceName
+		dataType: string
+		lineageTag: ec66a787-95e7-41d1-b731-af10506bf2ef
+		summarizeBy: none
+		sourceColumn: SourceName
+
+	column SourceCategory
+		dataType: string
+		lineageTag: 3f98e277-4cbd-47ad-9c90-a9587403e430
+		summarizeBy: none
+		sourceColumn: SourceCategory
+
+	column IsPaidChannel
+		dataType: string
+		lineageTag: c7a2ea20-b2f1-4c94-ae05-319acb5c7427
+		summarizeBy: none
+		sourceColumn: IsPaidChannel
+
+	column BenchmarkYieldRate
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 4cdd2055-930d-4eaf-94f4-733f3e7d1bfb
+		summarizeBy: none
+		sourceColumn: BenchmarkYieldRate
+
+	partition DimSource-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "DimSource.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"SourceID", type text}, {"SourceName", type text}, {"SourceCategory", type text}, {"IsPaidChannel", type text}, {"BenchmarkYieldRate", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

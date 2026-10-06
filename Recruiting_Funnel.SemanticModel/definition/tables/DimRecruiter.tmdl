@@ -1,0 +1,40 @@
+table DimRecruiter
+	lineageTag: 13deef86-ab10-41d0-b646-e1f40a097c97
+
+	column RecruiterID
+		dataType: string
+		isHidden
+		lineageTag: ca02135e-92b1-43f2-8ede-0d7ac3baea9e
+		summarizeBy: none
+		sourceColumn: RecruiterID
+
+	column RecruiterName
+		dataType: string
+		lineageTag: 57124242-5051-41cc-917f-9acae01f5057
+		summarizeBy: none
+		sourceColumn: RecruiterName
+
+	column RecruiterTeam
+		dataType: string
+		lineageTag: 7f26144b-9828-4fcd-99a5-4a7bb1fee08f
+		summarizeBy: none
+		sourceColumn: RecruiterTeam
+
+	column BaseLocation
+		dataType: string
+		lineageTag: 119a72d1-74c9-4f6a-8c01-1cdd9474031b
+		summarizeBy: none
+		sourceColumn: BaseLocation
+
+	partition DimRecruiter-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "DimRecruiter.csv"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"RecruiterID", type text}, {"RecruiterName", type text}, {"RecruiterTeam", type text}, {"BaseLocation", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,86 @@
+table FactApplication
+	lineageTag: 1c2442f9-298c-43a5-b0cc-ec313571810a
+
+	column ApplicationID
+		dataType: string
+		lineageTag: 1a358ca0-0d75-485d-99c9-4309570dc195
+		summarizeBy: none
+		sourceColumn: ApplicationID
+
+	column ReqID
+		dataType: string
+		isHidden
+		lineageTag: 895fd7b3-26b9-4c7f-9118-bb16000f49c8
+		summarizeBy: none
+		sourceColumn: ReqID
+
+	column SourceID
+		dataType: string
+		isHidden
+		lineageTag: 9d1de2a0-5d15-4a2f-b2ee-4e4519f9919c
+		summarizeBy: none
+		sourceColumn: SourceID
+
+	column AppliedDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 353c631c-dfd4-4f37-9200-339d068739fa
+		summarizeBy: none
+		sourceColumn: AppliedDate
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column AppliedDateKey
+		dataType: string
+		isHidden
+		lineageTag: a268aa87-2607-479d-a050-914a9d33a01c
+		summarizeBy: none
+		sourceColumn: AppliedDateKey
+
+	column FurthestStageID
+		dataType: string
+		isHidden
+		lineageTag: 9a2ef80f-58ee-4571-b499-8d7c4093f6de
+		summarizeBy: none
+		sourceColumn: FurthestStageID
+
+	column FurthestStageOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: 1d87cec3-1f72-46ab-b961-fd925d39d0a8
+		summarizeBy: none
+		sourceColumn: FurthestStageOrder
+
+	column FinalStatus
+		dataType: string
+		lineageTag: fa529ba3-fe3b-4ada-bcf2-0724d953ee26
+		summarizeBy: none
+		sourceColumn: FinalStatus
+
+	column RejectReasonID
+		dataType: string
+		isHidden
+		lineageTag: 4fd58dbe-7bdc-468b-bafb-2c68774b15d7
+		summarizeBy: none
+		sourceColumn: RejectReasonID
+
+	column IsHired
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bfeaa155-1a28-47b3-a4e4-e25a15fc899e
+		summarizeBy: none
+		sourceColumn: IsHired
+
+	partition FactApplication-partition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "FactApplication.csv"),[Delimiter=",", Columns=10, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ApplicationID", type text}, {"ReqID", type text}, {"SourceID", type text}, {"AppliedDate", type date}, {"AppliedDateKey", type text}, {"FurthestStageID", type text}, {"FurthestStageOrder", Int64.Type}, {"FinalStatus", type text}, {"RejectReasonID", type text}, {"IsHired", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
