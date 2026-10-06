@@ -1,0 +1,9 @@
+SourceID,SourceName,SourceCategory,IsPaidChannel,BenchmarkYieldRate
+SRC01,Employee Referral,Referral,No,0.3
+SRC02,LinkedIn Recruiter,Outbound,Yes,0.18
+SRC03,Company Career Site,Inbound,No,0.12
+SRC04,JobStreet,Job Board,Yes,0.07
+SRC05,Glints,Job Board,Yes,0.06
+SRC06,Agency - Executive,Agency,Yes,0.22
+SRC07,Campus Hiring,Campus,Yes,0.09
+SRC08,Talent Pool / Rehire,Internal,No,0.16

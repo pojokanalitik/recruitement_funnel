@@ -1,0 +1,12 @@
+ReasonID,ReasonName,ReasonCategory,ResponsibleParty
+R01,Skills Not Matched,Candidate Fit,Recruiter
+R02,Failed Technical Bar,Candidate Fit,Hiring Manager
+R03,Salary Expectation Gap,Compensation,Company
+R04,Candidate Withdrew,Candidate Dropout,Candidate
+R05,Unresponsive to Recruiter,Candidate Dropout,Candidate
+R06,Counter Offer Accepted,Compensation,Candidate
+R07,Process Too Slow,Process,Company
+R08,Location / Onsite Mismatch,Logistics,Company
+R09,Position Cancelled,Process,Company
+R10,Better Competing Offer,Compensation,Candidate
+R99,Still In Process,None,None

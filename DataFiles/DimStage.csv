@@ -1,0 +1,9 @@
+StageID,StageName,StageOrder,StageGroup,SLADays
+S1,Applied,1,Sourcing,2
+S2,Recruiter Screen,2,Screening,3
+S3,Hiring Manager Review,3,Screening,4
+S4,Technical Assessment,4,Interviewing,5
+S5,Panel Interview,5,Interviewing,7
+S6,Final Interview,6,Interviewing,5
+S7,Offer Extended,7,Offer,3
+S8,Offer Accepted,8,Offer,5

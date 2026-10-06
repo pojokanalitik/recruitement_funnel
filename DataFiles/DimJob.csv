@@ -1,0 +1,21 @@
+JobID,JobTitle,Department,JobFamily,JobLevel,Location,EmploymentType
+JOB001,Data Engineer,Engineering,Technology,Mid,Remote - Indonesia,Permanent
+JOB002,Senior Data Engineer,Engineering,Technology,Senior,Jakarta,Permanent
+JOB003,Backend Engineer,Engineering,Technology,Mid,Jakarta,Contract
+JOB004,Frontend Engineer,Engineering,Technology,Mid,Surabaya,Permanent
+JOB005,Engineering Manager,Engineering,Technology,Manager,Surabaya,Permanent
+JOB006,Data Analyst,Analytics,Technology,Junior,Bandung,Permanent
+JOB007,BI Developer,Analytics,Technology,Mid,Surabaya,Contract
+JOB008,Product Manager,Product,Technology,Senior,Remote - Indonesia,Permanent
+JOB009,UX Designer,Design,Technology,Mid,Jakarta,Permanent
+JOB010,Account Executive,Sales,Commercial,Mid,Surabaya,Permanent
+JOB011,Sales Manager,Sales,Commercial,Manager,Bekasi,Contract
+JOB012,Marketing Specialist,Marketing,Commercial,Junior,Remote - Indonesia,Permanent
+JOB013,Finance Analyst,Finance,Corporate,Mid,Surabaya,Permanent
+JOB014,Accounting Staff,Finance,Corporate,Junior,Remote - Indonesia,Permanent
+JOB015,HR Business Partner,People,Corporate,Senior,Bekasi,Permanent
+JOB016,Talent Acquisition,People,Corporate,Mid,Jakarta,Permanent
+JOB017,Supply Chain Analyst,Operations,Corporate,Mid,Bekasi,Permanent
+JOB018,Warehouse Supervisor,Operations,Corporate,Mid,Surabaya,Contract
+JOB019,Legal Counsel,Legal,Corporate,Senior,Jakarta,Permanent
+JOB020,IT Support Specialist,IT,Corporate,Junior,Surabaya,Permanent
